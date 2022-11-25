@@ -2,10 +2,12 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <math.h>
-#define TAM 10 // tamanho do vetor principal
+#define TAM 15 // tamanho do vetor principal
 #include <time.h>
 #define TAG_SEND_DIR 11
 #define TAG_SEND_ESQ 12
+
+
 
 /*
     ##################################################################################################
@@ -37,7 +39,26 @@ void order_vetor(int *vetor, int tam) {
     ##################################################################################################
 */
 
-void split_min(int *vetor, int ini, int fim) {
+void split_min(int *vetor, int ini, int fim, int tam_padrao) {
+    
+    int pos_alteradas = 0;
+    
+    while( vetor[ini + pos_alteradas] < vetor[ini-1- pos_alteradas ]) pos_alteradas++;
+    
+    
+    for(int i = 0; i < pos_alteradas; i++){
+        int temp = vetor[ini + i];
+        vetor[ini + i] = vetor[ini-pos_alteradas+i];
+        vetor[ini-pos_alteradas+i] = temp;
+        
+    }
+
+    
+
+    
+    return;
+
+    // return
     while(1) {
         // menor valor da thread seguinte
         int temp = vetor[fim];
@@ -53,7 +74,11 @@ void split_min(int *vetor, int ini, int fim) {
 }
 
 
-void split_max(int *vetor, int ini, int fim) {
+void split_max(int *vetor, int ini, int fim, int tam_padrao) {
+    
+    return;
+    
+    
     while(1) {
         // maior valor da thread anterior
         int temp = vetor[ini-1];
@@ -94,7 +119,7 @@ int main(int argc, char** argv) {
     fclose(f1);
 
     omp_set_num_threads(4);
-    # pragma omp parallel
+    # pragma omp parallel shared(vetor)
     {
         int rank = omp_get_thread_num();
         int size = omp_get_num_threads();
@@ -111,32 +136,38 @@ int main(int argc, char** argv) {
         */
         
         // número de iterações extras (necessárias quando tem resto)
-        int extra = ceil((float)(resto) / tam_padrao);
+        int extra = ceil((float)(resto) / tam_padrao) + 1 ;
 
         // ordenação sequencial dos vetores locais
-        order_vetor(&vetor[inicio], tam);
         
         for (int interator_process = 0; interator_process < size+extra; interator_process++) {
+            
+            #pragma omp barrier
+            order_vetor(&vetor[inicio], tam);
+            #pragma omp barrier
+            
+            
             if (interator_process % 2 == 1) { // iteração impar
                 if (rank % 2 == 1) { //rank impar
                     if (rank < size-1) 
-                        split_min(vetor, inicio, fim);
+                        split_max(vetor, inicio, fim, tam_padrao);
                 }
                 else { //rank par
                     if (rank > 0)
-                        split_max(vetor, inicio, fim);
+                        split_min(vetor, inicio, fim, tam_padrao);
                 }
             }
             else { // iteração par
                 if (rank % 2 == 0 ) { //rank par
                     if (rank < size-1) 
-                        split_min(vetor, inicio, fim);
+                        split_max(vetor, inicio, fim, tam_padrao);
                 }
                 else { //rank impar
-                    split_max(vetor, inicio, fim);
+                    split_min(vetor, inicio, fim, tam_padrao);
                 }
             }
         }
+        
     }
     
     // tempo de execução
