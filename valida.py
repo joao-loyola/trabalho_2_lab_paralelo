@@ -1,3 +1,4 @@
+# verifica se o arquivo está ordenado
 with open("output.txt","r") as f:
     
     valores = list( map(int, f.readline().split("  ")[:-1]))

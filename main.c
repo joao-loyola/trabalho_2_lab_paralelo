@@ -5,9 +5,6 @@
 #define TAM 40000 // tamanho do vetor principal
 #define NUM_THREADS 4
 #include <time.h>
-#define TAG_SEND_DIR 11
-#define TAG_SEND_ESQ 12
-
 
 
 /*
@@ -44,7 +41,7 @@ void split_min(int *vetor, int ini, int fim, int tam_padrao) {
     int pos_alteradas = 0;
 
     // conta quantas posições do vetor local serão alteradas
-    while(vetor[ini + pos_alteradas] < vetor[ini-1 - pos_alteradas]) pos_alteradas++;
+    while(vetor[ini + pos_alteradas] < vetor[ini-1 - pos_alteradas] && pos_alteradas < tam_padrao) pos_alteradas++;
     
     // faz a troca com o vetor adjacente
     for(int i = 0; i < pos_alteradas; i++) {
@@ -76,7 +73,8 @@ int main(int argc, char** argv) {
     #################################################################################################
     */
     double time_spent = 0.0;
-    clock_t begin = clock();
+    // clock_t begin = clock();
+    double begin = omp_get_wtime();
 
     // leitura dos TAM valores
     FILE *f1 = fopen("input.txt", "r");
@@ -140,8 +138,10 @@ int main(int argc, char** argv) {
     }
     
     // tempo de execução
-    clock_t end = clock();
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+    // clock_t end = clock();
+    // time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+    double end = omp_get_wtime();
+    time_spent += (end - begin);
     
     // escreve vetor ordenado em um arquivo
     FILE *f2 = fopen("output.txt", "w");
