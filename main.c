@@ -2,7 +2,7 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <math.h>
-#define TAM 15 // tamanho do vetor principal
+#define TAM 10000 // tamanho do vetor principal
 #include <time.h>
 #define TAG_SEND_DIR 11
 #define TAG_SEND_ESQ 12
@@ -105,8 +105,8 @@ int main(int argc, char** argv) {
                   |___|_| \_|___\____|___/_/   \_\_____|___/____/_/   \_\____/_/   \_\___/ 
     #################################################################################################
     */
-    // double time_spent = 0.0;
-    // clock_t begin = clock();
+    double time_spent = 0.0;
+    double begin = omp_get_wtime() ;
 
     // leitura dos TAM valores
     FILE *f1 = fopen("input.txt", "r");
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
     }
     fclose(f1);
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(1);
     # pragma omp parallel shared(vetor)
     {
         int rank = omp_get_thread_num();
@@ -171,8 +171,8 @@ int main(int argc, char** argv) {
     }
     
     // tempo de execução
-    // clock_t end = clock();
-    // time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+    double end = omp_get_wtime();
+    time_spent += (double)(end - begin);
     
     // escreve vetor ordenado em um arquivo
     FILE *f2 = fopen("output.txt", "w");
@@ -180,9 +180,9 @@ int main(int argc, char** argv) {
     free(vetor); fclose(f2);
 
     // escreve tempo de execução em um arquivo
-    // FILE *f1 = fopen("time_result.csv", "a");
-    // fprintf(f1, "%f\n", time_spent);
-    // fclose(f1);
+    FILE *f3 = fopen("time_result.csv", "a");
+    fprintf(f3, "%f\n", time_spent);
+    fclose(f3);
     
     return 0;
 }
