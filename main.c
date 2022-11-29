@@ -2,7 +2,7 @@
 #include <omp.h>
 #include <stdlib.h>
 #include <math.h>
-#define TAM 10000 // tamanho do vetor principal
+#define TAM 40000 // tamanho do vetor principal
 #include <time.h>
 #define TAG_SEND_DIR 11
 #define TAG_SEND_ESQ 12
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
     #################################################################################################
     */
     double time_spent = 0.0;
-    double begin = omp_get_wtime() ;
+    clock_t begin = clock();
 
     // leitura dos TAM valores
     FILE *f1 = fopen("input.txt", "r");
@@ -171,8 +171,8 @@ int main(int argc, char** argv) {
     }
     
     // tempo de execução
-    double end = omp_get_wtime();
-    time_spent += (double)(end - begin);
+    clock_t end = clock();
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
     
     // escreve vetor ordenado em um arquivo
     FILE *f2 = fopen("output.txt", "w");
